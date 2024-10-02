@@ -1,5 +1,15 @@
---[[pod_format="raw",created="2024-09-29 19:59:14",modified="2024-10-02 19:47:31",revision=577]]
+--[[pod_format="raw",created="2024-09-29 19:59:14",modified="2024-10-02 23:42:27",revision=863]]
 guita = {}
+
+local GuiElement = getmetatable(create_gui())
+
+function guita.new(el)
+	el = GuiElement:new(el)
+	el.width = el.width or 0
+	el.height = el.height or 0
+	
+	return el
+end
 
 function guita.memo(f)
 	local last_params = {}
@@ -17,20 +27,33 @@ function guita.memo(f)
 	end
 end
 
-local textlength = function(str)
-	profile("textlength")
+guita_cache_total = 0
+function guita.cache(f)
+	local t = {}
 	
-	local p = print(str,480,0)
-	
+	return function(x)
+--		profile("cache")
+		local v = t[x]
+		if v == nil then
+			v = f(x)
+			t[x] = v
+			
+--			guita_cache_total+=1
+		end
 
-	profile("textlength")
-	return p-480
+--		profile("cache")
+		return v
+	end
 end
 
-textwrapcalls = 0 -- debug
+local textlength = guita.cache(function(str)
+	return print(str,0,-1000)
+end)
+
+--textwrapcalls = 0 -- debug
 local function textwrap(str, width)
-	profile("textwrap")
-	textwrapcalls += 1
+	profile("textwrap",true)
+--	textwrapcalls += 1
 	
 	local lines = {}
 	local line_widths = {}
@@ -49,8 +72,7 @@ local function textwrap(str, width)
 			current_line = ""
 			current_width = 0
 			
-			x = 0
-			x += textlength(wordspace)
+			x = textlength(wordspace)
 			
 			current_line ..= wordspace
 			current_width = x
@@ -69,15 +91,11 @@ local function textwrap(str, width)
 				x = 0
 			else
 				current_line ..= space
-				--current_width = x - OFFSCREEN
-				--if it's last space in a line - shouldnt count
-				--if there's another word in the line
-				-- - current_width will get updated anyway
 			end
 		end
 		
 		-- check if a newline character was there
-		if space:match("\n") then
+		if space:find("\n") then
 			add(lines, current_line)
 			add(line_widths, current_width)
 			current_line = ""
@@ -89,7 +107,7 @@ local function textwrap(str, width)
 	add(lines, current_line)
 	add(line_widths, current_width)
 	
-	profile("textwrap")
+	profile("textwrap",true)
 
 	return lines, line_widths
 end
@@ -133,11 +151,11 @@ function guita.text(el)
 end
 
 function guita.box(el)
-	el.width = el.width or 100
-	el.height = el.height or 100
+	el.width = el.width or 0
+	el.height = el.height or 0
 	
 	-- "row" | "column"
-	el.layout = el.layout or "row"
+	el.type = el.type or "row"
 
 	el.p = el.p or 0
 	
@@ -158,9 +176,9 @@ function guita.box(el)
 			local av_h = el.height - el.pt - el.pb
 			local req_width, req_height = child.layout.request_size(av_w, av_h)
 			
-			if el.layout == "row" then
+			if el.type == "row" then
 				return req_width
-			elseif el.layout == "column" then
+			elseif el.type == "column" then
 				return req_height
 			end
 		else
@@ -171,11 +189,11 @@ function guita.box(el)
 	local available = function()
 		local gaps = el.gap * (#el.child - 1)
 		
-		local amt	
+		local amt
 
-		if el.layout == "row" then
+		if el.type == "row" then
 			amt = el.width - el.pl - el.pr - gaps
-		elseif el.layout == "column" then
+		elseif el.type == "column" then
 			amt = el.height - el.pt - el.pb - gaps
 		end
 		
@@ -224,8 +242,8 @@ function guita.box(el)
 
 		local delta = 0
 		for i, child in pairs(self.child) do
-			local dx = self.layout == "row" and delta or 0
-			local dy = self.layout == "column" and delta or 0
+			local dx = self.type == "row" and delta or 0
+			local dy = self.type == "column" and delta or 0
 	
 			child.x = el.pl + dx
 			child.y = el.pt + dy
@@ -233,9 +251,9 @@ function guita.box(el)
 			child.height = el.height - el.pt - el.pb
 			
 			local size = child_size(child, av)
-			if el.layout == "row" then
+			if el.type == "row" then
 				child.width = size
-			elseif el.layout == "column" then
+			elseif el.type == "column" then
 				child.height = size
 			end
 			
@@ -244,7 +262,7 @@ function guita.box(el)
 	end
 	
 	el.attach = function(self, child)
-		child = self.head:new(child)
+		child = guita.new(child)
 		child.parent = self
 		child.head = self.head or self
 		
@@ -254,6 +272,65 @@ function guita.box(el)
 		
 		return child
 	end
+	
+	el.layout = {}
+	el.layout.request_size = function(av_width, av_height)
+		av_width -= el.pl + el.pr
+		av_height -= el.pt + el.pb	
+
+		local base, cross = 0, 0
+		
+		for child in all(el.child) do
+			local b, c = 0, 0
+			if child.layout and child.layout.request_size then
+				b, c = child.layout.request_size(av_width, av_height)
+			end
+			
+			if el.type == "column" then
+				c, b = b, c
+			end
+			
+			base += b
+			cross = max(cross, c)
+		end
+		
+		base += el.gap * (#el.child - 1)
+		
+		if el.type == "column" then
+			base, cross = cross, base
+		end
+		
+		base += el.pl + el.pr
+		cross += el.pt + el.pb
+		
+		return base, cross
+	end
 
 	return el
+end
+
+function guita.scrollbox(el)
+	el.x = 0
+	el.y = 0
+	
+	local scrollbar
+	
+	local scrollbox = guita.new {
+		update = function(self)
+			local rw, rh = self.width - scrollbar.width, self.height
+			
+			if el.layout and el.layout.request_size then
+				rw, rh = el.layout.request_size(self.width - scrollbar.width, math.huge)
+				rw = self.width - scrollbar.width
+			end
+			
+			el.width = rw
+			el.height = rh
+		end
+	}
+	
+	scrollbox:attach(el)
+	scrollbar = scrollbox:attach_scrollbars()
+	
+	return scrollbox
 end
