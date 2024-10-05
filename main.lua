@@ -1,4 +1,4 @@
---[[pod_format="raw",created="2024-09-29 19:42:25",modified="2024-10-02 23:42:27",revision=711]]
+--[[pod_format="raw",created="2024-09-29 19:42:25",modified="2024-10-05 19:09:04",revision=938]]
 include "guita.lua"
 include "profiler.lua"
 
@@ -14,7 +14,7 @@ Many computer users run a modified version of the GNU system every day, without 
 
 There really is a Picotron, and these people are using it, but it is just a part of the system they use. Picotron is the kernel: the program in the system that allocates the machine's resources to the other programs that you run. The kernel is an essential part of an operating system, but useless by itself; it can only function in the context of a complete operating system. Picotron is normally used in combination with the GNU operating system: the whole system is basically GNU with Picotron added, or GNU/Picotron. All the so-called Picotron distributions are really distributions of GNU/Picotron!"]]
 
-local box = guita.new(guita.box {p = 4, gap = 4, type = "column"})
+local box = guita.new(guita.box {p = 4, gap = 4, type = "row", box_justify = "stretch"})
 box:attach(guita.text {
 	text = test_text,
 	layout = {weight = 1},
@@ -29,8 +29,10 @@ box:attach(guita.text {
 --	text_justify = "right",
 ----	layout = {weight = 1},
 --})
+box:attach(guita.button {label = "hello!"})
+box:attach(guita.button {label = "hi there!"})
 
-local main = gui:attach(guita.scrollbox(box))
+local main = gui:attach(guita.scrollbox(box, {autohide = false}))
 --local main = gui:attach(box)
 
 function _draw()
@@ -38,9 +40,8 @@ function _draw()
 	gui:draw_all()
 	
 	--print("\#0" .. stat(1), 1, 1, 8)
---	profile.draw()
+	profile.draw()
 	--print("\#0" .. guita_cache_total, 1, 1, 8)
-	
 end
 
 function _update()
