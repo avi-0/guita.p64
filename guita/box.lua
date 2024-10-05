@@ -1,4 +1,4 @@
---[[pod_format="raw",created="2024-10-05 19:08:23",modified="2024-10-05 19:09:04",revision=5]]
+--[[pod_format="raw",created="2024-10-05 19:08:23",modified="2024-10-05 21:00:28",revision=173]]
 function guita.box(el)
 	el.width = el.width or 0
 	el.height = el.height or 0
@@ -21,19 +21,16 @@ function guita.box(el)
 	
 	el.box_justify = el.box_justify or "left"
 	
-	local child_requested = function(child)
-		if child.manifest and child.manifest.request_size then
-			local av_w = el.width - el.pl - el.pr
-			local av_h = el.height - el.pt - el.pb
-			local req_width, req_height = child.manifest.request_size(av_w, av_h)
+	local child_min = function(child)
+		if child.manifest and child.manifest.min_size then
+			local min_width, min_height = child.manifest.min_size()
 			
-			if el.type == "row" then
-				return req_width, req_height
-			elseif el.type == "column" then
-				return req_height, req_width
+			if el.type == "column" then
+				min_width, min_height = min_height, min_width
 			end
+			return min_width, min_height
 		else
-			return 0, 0
+			return 0
 		end
 	end
 	
@@ -57,7 +54,7 @@ function guita.box(el)
 		end
 		
 		for child in all(el.child) do
-			amt -= child_requested(child)
+			amt -= child_min(child)
 		end
 		
 		--amt = math.max(0, amt)
@@ -92,9 +89,29 @@ function guita.box(el)
 		return av / total_weight(av)
 	end
 	
+	local base_from_cross = function(child, x)
+		if el.type == "column" then
+			return child.manifest.height_from_width(x)
+		else
+			return child.manifest.width_from_height(x)
+		end
+	end
+	
+	local cross_from_base = function(child, x)
+		if el.type == "row" then
+			return child.manifest.height_from_width(x)
+		else
+			return child.manifest.width_from_height(x)
+		end
+	end
+	
 	local child_size = function(child, av)
-		local req_b, req_c = child_requested(child)
-		return req_b + child_weight(child, av) * per_child(av), req_c
+		local min_base = child_min(child)
+		
+		local base = min_base + child_weight(child, av) * per_child(av)
+		local cross = cross_from_base(child, base)
+	
+		return base, cross
 	end	
 
 	el.update = function(self)
@@ -144,6 +161,8 @@ function guita.box(el)
 		child.parent = self
 		child.head = self.head or self
 		
+		guita.init_manifest(child)
+		
 		add(self.child, child)
 		
 		self:update()
@@ -152,36 +171,62 @@ function guita.box(el)
 	end
 	
 	el.manifest = {}
-	el.manifest.request_size = function(av_width, av_height)
-		av_width -= el.pl + el.pr
-		av_height -= el.pt + el.pb	
-
-		local base, cross = 0, 0
+	
+	local pad_bc = function()
+		local px = el.pl + el.pr
+		local py = el.pt + el.pb
+		if el.type == "column" then
+			px, py = py, px
+		end
+		return px, py
+	end
+	
+	local m_base_from_cross = function(av_cross)
+		local pb, pc = pad_bc()
 		
+		av_cross -= pc
+		
+		local base = 0
 		for child in all(el.child) do
-			local b, c = 0, 0
-			if child.manifest and child.manifest.request_size then
-				b, c = child.manifest.request_size(av_width, av_height)
-			end
-			
-			if el.type == "column" then
-				c, b = b, c
-			end
-			
-			base += b
-			cross = max(cross, c)
+			base += base_from_cross(child, av_cross)
 		end
 		
+		base += pb
 		base += el.gap * (#el.child - 1)
 		
-		if el.type == "column" then
-			base, cross = cross, base
+		return base
+	end
+	
+	local m_cross_from_base = function(av_base)
+		local pb, pc = pad_bc()
+		local av = available()	
+	
+		av_base -= pb
+		local cross = 0
+		for child in all(el.child) do
+			local base = child_size(child, av)
+			cross = max(cross, cross_from_base(child, base))
 		end
 		
-		base += el.pl + el.pr
-		cross += el.pt + el.pb
+		cross += pc
 		
-		return base, cross
+		return cross
+	end
+	
+	el.manifest.width_from_height = function(h)
+		if el.type == "row" then
+			return m_base_from_cross(h)
+		else
+			return m_cross_from_base(h)
+		end
+	end
+	
+	el.manifest.height_from_width = function(w)
+		if el.type == "column" then
+			return m_base_from_cross(w)
+		else
+			return m_cross_from_base(w)
+		end
 	end
 
 	return el

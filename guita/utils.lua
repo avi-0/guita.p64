@@ -1,4 +1,4 @@
---[[pod_format="raw",created="2024-10-05 19:03:51",modified="2024-10-05 19:09:04",revision=27]]
+--[[pod_format="raw",created="2024-10-05 19:03:51",modified="2024-10-05 21:00:28",revision=151]]
 guita = guita or {}
 
 local GuiElement = getmetatable(create_gui())
@@ -27,21 +27,67 @@ function guita.memo(f)
 	end
 end
 
-guita_cache_total = 0
-function guita.cache(f)
+function guita.cache(f, key, cap)
 	local t = {}
 	
-	return function(x)
---		profile("cache")
-		local v = t[x]
-		if v == nil then
-			v = f(x)
-			t[x] = v
+	if key == nil and cap == nil then
+		return function(x)
+			local v = t[x]
+			if v == nil then
+				v = f(x)
+				t[x] = v
+			end
 			
---			guita_cache_total+=1
+			return v
 		end
-
---		profile("cache")
-		return v
+	elseif key != nil and cap == nil then
+		return function(...)
+			local k = key(...)
+			local v = t[k]
+			if v == nil then
+				v = f(...)
+				t[k] = v
+			end
+			
+			return v
+		end
+	elseif key == nil and cap != nil then
+		local keys = {}
+		local key_i = -1
+		
+		return function(x)
+			local v = t[x]
+			if v == nil then
+				key_i = (key_i + 1) % cap
+				
+				t[keys[key_i] or 0] = nil
+				keys[key_i] = x
+			
+				v = f(x)
+				t[x] = f(x)
+			end
+			
+			return v
+		end
+	elseif key != nil and cap != nil then
+		local keys = {}
+		local key_i = -1
+		
+		return function(...)
+			local k = key(...)
+			local v = t[k]
+			
+			if v == nil then
+				key_i = (key_i + 1) % cap
+			
+				t[keys[key_i] or 0] = nil
+				keys[key_i] = k
+			
+				v = f(...)
+				t[k] = v
+			end
+			
+			return v
+		end
 	end
 end

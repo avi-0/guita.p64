@@ -1,7 +1,9 @@
---[[pod_format="raw",created="2024-10-05 19:08:51",modified="2024-10-05 19:09:04",revision=4]]
+--[[pod_format="raw",created="2024-10-05 19:08:51",modified="2024-10-05 21:00:28",revision=144]]
 function guita.scrollbox(el, attribs)
 	el.x = 0
 	el.y = 0
+	
+	guita.init_manifest(el)
 	
 	local scrollbar
 	
@@ -10,11 +12,8 @@ function guita.scrollbox(el, attribs)
 			local rw, rh = self.width - scrollbar.width, self.height
 			
 			if scrollbar.hidden then
-				rw, rh = self.width, self.height
-				if el.manifest and el.manifest.request_size then
-					rw, rh = el.manifest.request_size(self.width, math.huge)
-					rw = self.width
-				end
+				rw = self.width
+				rh = el.manifest.height_from_width(self.width)
 				
 				if rh <= self.height then
 					el.width = rw
@@ -23,14 +22,12 @@ function guita.scrollbox(el, attribs)
 				end
 			end
 			
-			rw, rh = self.width - scrollbar.width, self.height
-			if el.manifest and el.manifest.request_size then
-				rw, rh = el.manifest.request_size(self.width - scrollbar.width, math.huge)
-				rw = self.width - scrollbar.width
-			end
+			rh = el.manifest.height_from_width(self.width - scrollbar.width)
 			
 			el.width = rw
 			el.height = rh
+			
+			el.y = mid(0, el.y, -max(0, el.height - self.height))
 		end
 	}
 	
