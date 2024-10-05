@@ -1,4 +1,4 @@
---[[pod_format="raw",created="2024-10-05 19:08:51",modified="2024-10-05 23:26:09",revision=465]]
+--[[pod_format="raw",created="2024-10-05 19:08:51",modified="2024-10-05 23:33:19",revision=492]]
 function guita.scrollbox(el, attribs)
 	el.x = 0
 	el.y = 0
@@ -6,7 +6,7 @@ function guita.scrollbox(el, attribs)
 	guita.init_manifest(el)
 	
 	attribs = attribs or {}
-	attribs.autohide = (attribs.autohide == nil) and true
+	attribs.autohide = attribs.autohide or (attribs.autohide == nil)
 	
 	local scrollbar
 	
@@ -50,7 +50,7 @@ function guita.scrollbox(el, attribs)
 				w += scrollbar.width
 			end
 			
-			return w, 0
+			return w, h
 		end,
 		width_from_height = function(h)
 			local w =	el.manifest.width_from_height(h)
@@ -61,7 +61,7 @@ function guita.scrollbox(el, attribs)
 			return w
 		end,
 		height_from_width = function(w)
-			return 0
+			return el.manifest.height_from_width(w)
 		end,
 		weight = 1,
 	}
