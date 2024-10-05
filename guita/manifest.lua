@@ -1,4 +1,4 @@
---[[pod_format="raw",created="2024-10-05 19:26:31",modified="2024-10-05 21:00:28",revision=116]]
+--[[pod_format="raw",created="2024-10-05 19:26:31",modified="2024-10-05 21:04:11",revision=131]]
 function guita.init_manifest(el)
 	if el.manifest == nil then
 		local const_width, const_height = el.width, el.height

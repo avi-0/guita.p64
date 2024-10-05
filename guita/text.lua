@@ -1,4 +1,4 @@
---[[pod_format="raw",created="2024-10-05 19:04:50",modified="2024-10-05 21:00:28",revision=169]]
+--[[pod_format="raw",created="2024-10-05 19:04:50",modified="2024-10-05 21:04:11",revision=185]]
 include "guita/utils.lua"
 
 local textlength = guita.cache(function(str)

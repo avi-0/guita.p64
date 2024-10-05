@@ -1,4 +1,4 @@
---[[pod_format="raw",created="2024-10-05 19:08:23",modified="2024-10-05 21:00:28",revision=173]]
+--[[pod_format="raw",created="2024-10-05 19:08:23",modified="2024-10-05 21:04:11",revision=193]]
 function guita.box(el)
 	el.width = el.width or 0
 	el.height = el.height or 0
@@ -19,7 +19,7 @@ function guita.box(el)
 	
 	el.gap = el.gap or 0
 	
-	el.box_justify = el.box_justify or "left"
+	el.box_justify = el.box_justify or "start"
 	
 	local child_min = function(child)
 		if child.manifest and child.manifest.min_size then
@@ -136,7 +136,7 @@ function guita.box(el)
 				cross = self_axis(true)
 			elseif el.box_justify == "center" then
 				o_cross = self_axis(true) / 2 - cross / 2
-			elseif el.box_justify == "right" then
+			elseif el.box_justify == "end" then
 				o_cross = self_axis(true) - cross
 			end
 		

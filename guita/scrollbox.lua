@@ -1,4 +1,4 @@
---[[pod_format="raw",created="2024-10-05 19:08:51",modified="2024-10-05 21:00:28",revision=144]]
+--[[pod_format="raw",created="2024-10-05 19:08:51",modified="2024-10-05 21:04:11",revision=159]]
 function guita.scrollbox(el, attribs)
 	el.x = 0
 	el.y = 0
