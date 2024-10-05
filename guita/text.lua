@@ -1,4 +1,4 @@
---[[pod_format="raw",created="2024-10-05 19:04:50",modified="2024-10-05 21:04:11",revision=185]]
+--[[pod_format="raw",created="2024-10-05 19:04:50",modified="2024-10-05 21:08:58",revision=204]]
 include "guita/utils.lua"
 
 local textlength = guita.cache(function(str)
@@ -70,6 +70,8 @@ end
 
 function guita.text(el)
 	el.text = el.text or ""
+	el.text_color = el.text_color or 0
+	el.bg_color = el.bg_color or nil
 
 	el.text_justify = el.text_justify or "left"
 	
@@ -94,7 +96,9 @@ function guita.text(el)
 	end
 
 	el.draw = function(self)
-		rectfill(0, 0, self.width, self.height, 7)
+		if el.bg_color then
+			rectfill(0, 0, self.width, self.height, el.bg_color)
+		end
 		
 		local lines, line_widths = memo_textwrap(el.text, self.width + 1)
 		for i = 1, #lines do
@@ -107,7 +111,7 @@ function guita.text(el)
 				x = self.width + 1 - line_widths[i]
 			end
 			
-			print(lines[i],x,(i-1)*8,0)
+			print(lines[i], x, (i-1)*8, el.text_color)
 		end
 	end
 	

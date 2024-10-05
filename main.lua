@@ -1,4 +1,4 @@
---[[pod_format="raw",created="2024-09-29 19:42:25",modified="2024-10-05 21:04:11",revision=1094]]
+--[[pod_format="raw",created="2024-09-29 19:42:25",modified="2024-10-05 21:08:58",revision=1120]]
 include "guita.lua"
 include "profiler.lua"
 
@@ -14,10 +14,12 @@ Many computer users run a modified version of the GNU system every day, without 
 
 There really is a Picotron, and these people are using it, but it is just a part of the system they use. Picotron is the kernel: the program in the system that allocates the machine's resources to the other programs that you run. The kernel is an essential part of an operating system, but useless by itself; it can only function in the context of a complete operating system. Picotron is normally used in combination with the GNU operating system: the whole system is basically GNU with Picotron added, or GNU/Picotron. All the so-called Picotron distributions are really distributions of GNU/Picotron!"]]
 
-local box = guita.new(guita.box {p = 4, gap = 4, type = "row", box_justify = "center"})
+local box = guita.new(guita.box {p = 4, gap = 4, type = "row", box_justify = "start"})
 box:attach(guita.text {
 	text = test_text,
 	manifest = {weight = 1},
+	bg_color = 7,
+	text_color = 0,
 })
 --box:attach(guita.text {
 --	text = test_text,
