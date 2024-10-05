@@ -1,4 +1,4 @@
---[[pod_format="raw",created="2024-10-05 19:04:50",modified="2024-10-05 22:44:29",revision=361]]
+--[[pod_format="raw",created="2024-10-05 19:04:50",modified="2024-10-05 23:26:09",revision=477]]
 include "guita/utils.lua"
 
 local textlength = guita.cache(function(str)
@@ -88,7 +88,7 @@ function guita.text(el)
 		return req_height
 	end
 	el.manifest.width_from_height = function(height)
-		return math.huge
+		return 0
 	end
 	el.manifest.request_size = function(width, height)
 		return width, el.manifest.height_from_width(width)

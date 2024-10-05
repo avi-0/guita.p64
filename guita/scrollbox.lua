@@ -1,10 +1,9 @@
---[[pod_format="raw",created="2024-10-05 19:08:51",modified="2024-10-05 22:44:29",revision=349]]
+--[[pod_format="raw",created="2024-10-05 19:08:51",modified="2024-10-05 23:26:09",revision=465]]
 function guita.scrollbox(el, attribs)
 	el.x = 0
 	el.y = 0
 	
 	guita.init_manifest(el)
-	el.clip_to_parent = true
 	
 	attribs = attribs or {}
 	attribs.autohide = (attribs.autohide == nil) and true
@@ -34,10 +33,14 @@ function guita.scrollbox(el, attribs)
 			el.height = rh
 			
 			el.y = mid(0, el.y, -max(0, el.height - self.height))
-		end
+		end,
+		
+		-- for some god forsaken reason
+		-- not having this one breaks clipping to parent
+		draw = function() end,
 	}
 	
-	scrollbox:attach(el)
+	el = scrollbox:attach(el)
 	scrollbar = scrollbox:attach_scrollbars(attribs)
 	
 	scrollbox.manifest = {
@@ -47,7 +50,7 @@ function guita.scrollbox(el, attribs)
 				w += scrollbar.width
 			end
 			
-			return w, math.huge
+			return w, 0
 		end,
 		width_from_height = function(h)
 			local w =	el.manifest.width_from_height(h)

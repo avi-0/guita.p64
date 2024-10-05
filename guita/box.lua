@@ -1,4 +1,4 @@
---[[pod_format="raw",created="2024-10-05 19:08:23",modified="2024-10-05 22:44:29",revision=422]]
+--[[pod_format="raw",created="2024-10-05 19:08:23",modified="2024-10-05 23:26:09",revision=531]]
 function guita.box(el)
 	el = guita.new(el)
 
@@ -231,7 +231,7 @@ function guita.box(el)
 			cross = max(cross, child_c)
 		end
 		
-		base += el.gap * (#el.child)
+		base += el.gap * (#el.child - 1)
 		
 		if el.type == "column" then
 			base, cross = cross, base

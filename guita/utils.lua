@@ -1,10 +1,13 @@
---[[pod_format="raw",created="2024-10-05 19:03:51",modified="2024-10-05 21:04:11",revision=167]]
+--[[pod_format="raw",created="2024-10-05 19:03:51",modified="2024-10-05 23:26:09",revision=440]]
 guita = guita or {}
 
 local GuiElement = getmetatable(create_gui())
 
 function guita.new(el)
 	el = GuiElement:new(el)
+	el.parent = nil
+	el.head = nil	
+
 	el.width = el.width or 0
 	el.height = el.height or 0
 	
