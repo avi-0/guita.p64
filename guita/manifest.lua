@@ -1,4 +1,4 @@
---[[pod_format="raw",created="2024-10-05 19:26:31",modified="2024-10-05 21:04:11",revision=131]]
+--[[pod_format="raw",created="2024-10-05 19:26:31",modified="2024-10-05 21:47:57",revision=236]]
 function guita.init_manifest(el)
 	if el.manifest == nil then
 		local const_width, const_height = el.width, el.height
@@ -8,11 +8,6 @@ function guita.init_manifest(el)
 				return const_width, const_height
 			end,
 		}
-	end
-	
-	if not el.manifest.request_size
-	and el.manifest.min_size then
-		el.manifest.request_size = el.manifest.min_size
 	end
 	
 	if not el.manifest.height_from_width then

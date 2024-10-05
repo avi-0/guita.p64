@@ -1,4 +1,4 @@
---[[pod_format="raw",created="2024-09-29 19:42:25",modified="2024-10-05 21:08:58",revision=1120]]
+--[[pod_format="raw",created="2024-09-29 19:42:25",modified="2024-10-05 21:47:57",revision=1249]]
 include "guita.lua"
 include "profiler.lua"
 
@@ -31,8 +31,10 @@ box:attach(guita.text {
 --	text_justify = "right",
 ----	layout = {weight = 1},
 --})
-box:attach(guita.button {label = "hello!"})
-box:attach(guita.button {label = "hi there!"})
+
+local sidebar = box:attach(guita.box {type = "column", manifest = {weight = 0}})
+sidebar:attach(guita.button {label = "hello!"})
+sidebar:attach(guita.button {label = "hi there!"})
 
 local main = gui:attach(guita.scrollbox(box, {autohide = true}))
 --local main = gui:attach(box)
