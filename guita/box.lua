@@ -1,5 +1,7 @@
---[[pod_format="raw",created="2024-10-05 19:08:23",modified="2024-10-05 21:47:57",revision=343]]
+--[[pod_format="raw",created="2024-10-05 19:08:23",modified="2024-10-05 22:44:29",revision=422]]
 function guita.box(el)
+	el = guita.new(el)
+
 	el.width = el.width or 0
 	el.height = el.height or 0
 	
@@ -19,7 +21,7 @@ function guita.box(el)
 	
 	el.gap = el.gap or 0
 	
-	el.box_justify = el.box_justify or "start"
+	el.box_justify = el.box_justify or "stretch"
 	
 	local pad_bc = function()
 		local px = el.pl + el.pr
@@ -80,12 +82,7 @@ function guita.box(el)
 	
 	local child_weight = function(child, av)
 		if child.manifest then
-			local wt = child.manifest.weight or 0
-			if av < 0 then
-				wt = math.max(1, wt)
-			end
-			
-			return wt
+			return child.manifest.weight or 1
 		else
 			return 1
 		end
@@ -153,6 +150,12 @@ function guita.box(el)
 			end
 			
 			delta += base + el.gap
+		end
+	end
+	
+	el.draw = function(self)
+		if self.bg_col then
+			rectfill(0, 0, self.width -1, self.height - 1, self.bg_col)
 		end
 	end
 	

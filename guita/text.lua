@@ -1,4 +1,4 @@
---[[pod_format="raw",created="2024-10-05 19:04:50",modified="2024-10-05 21:08:58",revision=204]]
+--[[pod_format="raw",created="2024-10-05 19:04:50",modified="2024-10-05 22:44:29",revision=361]]
 include "guita/utils.lua"
 
 local textlength = guita.cache(function(str)
@@ -69,6 +69,8 @@ local function textwrap(str, width)
 end
 
 function guita.text(el)
+	el = guita.new(el)
+
 	el.text = el.text or ""
 	el.text_color = el.text_color or 0
 	el.bg_color = el.bg_color or nil
@@ -81,7 +83,7 @@ function guita.text(el)
 	el.manifest.height_from_width = function(width)
 		local lines, line_widths = memo_textwrap(el.text, width + 1)
 		
-		local req_height = 8 * #lines - 1
+		local req_height = 8 * #lines
 		
 		return req_height
 	end
